@@ -6,13 +6,13 @@ st.set_page_config(page_title="Minimum Trips Calculator", layout="centered")
 # Display logos and title
 st.markdown("""
 <div style='text-align:center;'>
-    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/A.jpeg' width='120' style='vertical-align:middle;'/>
-    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/NAB.png' width='120' style='vertical-align:middle;'/>
+    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/Aemaguard.jpg' width='120'/>
+    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/NAB.png' width='120'/>
     <h1 style='font-family:Arial, sans-serif; color:black;'>Minimum Trips Calculator</h1>
 </div><hr>
 """, unsafe_allow_html=True)
 
-# Inputs reordered and without pre-filled values
+# Inputs clearly reordered with placeholders, no pre-fill
 max_ebd_per_trip = st.number_input("Max EBD bags per trip:", min_value=1, step=1, value=None, placeholder="Enter number")
 num_ebd_bags = st.number_input("Number of EBD bags (not including bulk):", min_value=0, step=1, value=None, placeholder="Enter number")
 bulk_cash_amount = st.number_input("Enter total bulk cash amount:", min_value=0, step=1, value=None, placeholder="Enter amount")
@@ -56,11 +56,11 @@ if has_atm == "Yes":
 
 if st.button("Calculate Minimum Trips"):
     MAX_TRIP_VALUE = 350000
-    ebd_value = MAX_TRIP_VALUE / max_ebd_per_trip if max_ebd_per_trip else 0
+    ebd_value = MAX_TRIP_VALUE / int(max_ebd_per_trip) if max_ebd_per_trip else 0
 
     cash_items = (
         [('Bulk', val) for val in bulk_bag_values]
-        + [('EBD', ebd_value)] * (num_ebd_bags or 0)
+        + [('EBD', ebd_value)] * (int(num_ebd_bags) if num_ebd_bags else 0)
         + [('IDM', val) for val in idm_values]
         + ([('ATM', atm_value)] if atm_value else [])
     )
@@ -100,6 +100,7 @@ if st.button("Calculate Minimum Trips"):
             summary.append(f"{ebd_count} × EBDs")
         summary += idm_items + atm_items
 
-        st.markdown(f"<div style='font-family:Arial; font-size:16px;'>Trip {i}: {', '.join(summary)} → <strong>Total Trip:</strong> ${math.ceil(trip_total):,}</div>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-family: Arial; font-size: 16px;'><b>Trip {i}:</b> {', '.join(summary)} → <b>Total Trip:</b> ${math.ceil(trip_total):,}</p>", unsafe_allow_html=True)
 
 st.markdown("<hr><div style='text-align: center; font-family:Arial, sans-serif;'>Created by A. Cohen</div>", unsafe_allow_html=True)
+
