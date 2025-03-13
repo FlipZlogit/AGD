@@ -25,20 +25,10 @@ if bulk_cash_amount and bulk_cash_amount > 0:
     num_bulk_bags = st.number_input("Enter number of bulk cash bags (at least 1):", min_value=min_bulk_bags, step=1, value=min_bulk_bags, placeholder="Enter number")
 
     if num_bulk_bags > 1:
-        known_denomination = st.radio("Do you know the value of each bulk bag?", ["Yes", "No"], index=None)
-        if known_denomination == "Yes":
-            bulk_bag_values = []
-            for i in range(int(num_bulk_bags)):
-                val = st.number_input(f"Value of Bulk Bag {i+1}:", min_value=1, step=1000, key=f'bulkbag_{i}', value=None, placeholder="Enter amount")
-                bulk_bag_values.append(val)
-            if None not in bulk_bag_values and sum(bulk_bag_values) != bulk_cash_amount:
-                st.error("Values entered do not match the total bulk cash amount.")
-                st.stop()
-        else:
-            bulk_bag_values = [bulk_cash_amount // num_bulk_bags] * num_bulk_bags
-            remainder = bulk_cash_amount % num_bulk_bags
-            for i in range(remainder):
-                bulk_bag_values[i] += 1
+        bulk_bag_values = [bulk_cash_amount // num_bulk_bags] * num_bulk_bags
+        remainder = bulk_cash_amount % num_bulk_bags
+        for i in range(remainder):
+            bulk_bag_values[i] += 1
     else:
         bulk_bag_values = [bulk_cash_amount]
 
@@ -75,11 +65,16 @@ if st.button("Calculate Minimum Trips"):
     cash_items.sort(key=lambda x: x[1], reverse=True)
 
     trips = []
+    total_bags = 0
+    total_value = 0
+    total_idms = len(idm_values)
+    total_coins = num_coin_bags
+    total_atms = 1 if atm_value else 0
     while cash_items:
         trip, trip_value, ebd_count, bag_count = [], 0, 0, 0
         for item in cash_items[:]:
             bag_type, value = item
-            if bag_type == 'EBD' or bag_type == 'Bulk':
+            if bag_type in ['EBD', 'Bulk']:
                 bag_count += 1
             if bag_type == 'EBD' and ebd_count < max_ebd_per_trip and trip_value + value <= MAX_TRIP_VALUE:
                 trip.append(item)
@@ -90,14 +85,15 @@ if st.button("Calculate Minimum Trips"):
                 trip.append(item)
                 trip_value += value
                 cash_items.remove(item)
+        total_bags += bag_count
+        total_value += trip_value
         trips.append((trip, trip_value, bag_count))
 
     st.markdown("---")
     st.subheader("Trip Breakdown")
     for i, (trip, trip_total, bag_count) in enumerate(trips, 1):
-        summary = []
-        if bag_count:
-            summary.append(f"{bag_count} Bags")
-        st.markdown(f"Trip {i}: {', '.join(summary)} → <strong>Total Trip:</strong> ${math.ceil(trip_total):,}", unsafe_allow_html=True)
+        summary = [f"{bag_count} Bags"]
+        trip_details = [f"{t[0]} (${t[1]:,})" for t in trip]
+        st.markdown(f"Trip {i}: {', '.join(trip_details)} → <strong>Total Trip:</strong> ${math.ceil(trip_total):,} | {bag_count} Bags", unsafe_allow_html=True)
 
-st.markdown("<hr><div style='text-align: center; font-family:Arial, sans-serif;'>Created by A. Cohen</div>", unsafe_allow_html=True)
+    st.markdown(f"<hr><strong>Total:</strong> ${total_value:,} | {total_bags} Bags | {total_idms} IDMs | {total_atms} ATM | {total_coins} Coin Bags", unsafe_allow_html=True)
