@@ -65,35 +65,44 @@ if st.button("Calculate Minimum Trips"):
     cash_items.sort(key=lambda x: x[1], reverse=True)
 
     trips = []
-    total_bags = 0
-    total_value = 0
+    total_bags = sum(1 for item in cash_items if item[0] in ['EBD', 'Bulk'])
+    total_value = sum(item[1] for item in cash_items)
     total_idms = len(idm_values)
     total_coins = num_coin_bags
     total_atms = 1 if atm_value else 0
     while cash_items:
-        trip, trip_value, ebd_count, bag_count = [], 0, 0, 0
+        trip, trip_value, bag_count = [], 0, 0
         for item in cash_items[:]:
             bag_type, value = item
             if bag_type in ['EBD', 'Bulk']:
                 bag_count += 1
-            if bag_type == 'EBD' and ebd_count < max_ebd_per_trip and trip_value + value <= MAX_TRIP_VALUE:
-                trip.append(item)
-                trip_value += value
-                ebd_count += 1
-                cash_items.remove(item)
-            elif bag_type != 'EBD' and trip_value + value <= MAX_TRIP_VALUE:
+            if trip_value + value <= MAX_TRIP_VALUE:
                 trip.append(item)
                 trip_value += value
                 cash_items.remove(item)
-        total_bags += bag_count
-        total_value += trip_value
         trips.append((trip, trip_value, bag_count))
 
     st.markdown("---")
     st.subheader("Trip Breakdown")
     for i, (trip, trip_total, bag_count) in enumerate(trips, 1):
-        summary = [f"{bag_count} Bags"]
-        trip_details = [f"{t[0]} (${'{:,}'.format(int(t[1]))})" for t in trip]
-        st.markdown(f"**Trip {i}:** {', '.join(trip_details)} → **Total Trip:** ${math.ceil(trip_total):,} | {bag_count} Bags", unsafe_allow_html=True)
+        trip_summary = []
+        ebd_count = sum(1 for t in trip if t[0] == 'EBD')
+        bulk_count = sum(1 for t in trip if t[0] == 'Bulk')
+        idm_count = sum(1 for t in trip if t[0] == 'IDM')
+        atm_count = sum(1 for t in trip if t[0] == 'ATM')
+        coin_count = sum(1 for t in trip if t[0] == 'Coin')
+
+        if ebd_count:
+            trip_summary.append(f"{ebd_count} × EBDs")
+        if bulk_count:
+            trip_summary.append(f"{bulk_count} × Bulk")
+        if idm_count:
+            trip_summary.append(f"{idm_count} × IDMs")
+        if atm_count:
+            trip_summary.append(f"{atm_count} × ATM")
+        if coin_count:
+            trip_summary.append(f"{coin_count} × Coin Bags")
+
+        st.markdown(f"**Trip {i}:** {', '.join(trip_summary)} → **Total Trip:** ${math.ceil(trip_total):,} | {bag_count} Bags", unsafe_allow_html=True)
 
     st.markdown(f"<hr><strong>Total:</strong> ${math.ceil(total_value):,} | {total_bags} Bags | {total_idms} IDMs | {total_atms} ATM | {total_coins} Coin Bags", unsafe_allow_html=True)
