@@ -6,7 +6,7 @@ st.set_page_config(page_title="Minimum Trips Calculator", layout="centered")
 # Display logos and title
 st.markdown("""
 <div style='text-align:center;'>
-    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/Arma.png' width='120' style='vertical-align:middle;'/>
+    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/A.jpeg' width='120' style='vertical-align:middle;'/>
     <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/NAB.png' width='120' style='vertical-align:middle;'/>
     <h1 style='font-family:Arial, sans-serif; color:black;'>Minimum Trips Calculator</h1>
 </div><hr>
