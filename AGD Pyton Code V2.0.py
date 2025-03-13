@@ -72,16 +72,11 @@ if st.button("Calculate Minimum Trips"):
     total_atms = 1 if atm_value else 0
     while cash_items:
         trip, trip_value, bag_count = [], 0, 0
-        ebd_count = 0
         for item in cash_items[:]:
             bag_type, value = item
-            if bag_type == 'EBD' and ebd_count < max_ebd_per_trip:
-                if trip_value + value <= MAX_TRIP_VALUE:
-                    trip.append(item)
-                    trip_value += value
-                    ebd_count += 1
-                    cash_items.remove(item)
-            elif bag_type != 'EBD' and trip_value + value <= MAX_TRIP_VALUE:
+            if bag_type in ['EBD', 'Bulk']:
+                bag_count += 1
+            if trip_value + value <= MAX_TRIP_VALUE:
                 trip.append(item)
                 trip_value += value
                 cash_items.remove(item)
