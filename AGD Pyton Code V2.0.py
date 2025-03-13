@@ -6,15 +6,14 @@ st.set_page_config(page_title="Minimum Trips Calculator", layout="centered")
 # Display logos and title
 st.markdown("""
 <div style='text-align:center;'>
-    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/A.jpeg' width='120'/>
-    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/NAB.png' width='120'/>
+    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/A.jpeg' width='120' style='vertical-align:middle;'/>
+    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/NAB.png' width='120' style='vertical-align:middle;'/>
     <h1 style='font-family:Arial, sans-serif; color:black;'>Minimum Trips Calculator</h1>
 </div><hr>
 """, unsafe_allow_html=True)
 
-# Inputs clearly reordered with placeholders, no pre-fill
+# Inputs without pre-filled values
 max_ebd_per_trip = st.number_input("Max EBD bags per trip:", min_value=1, step=1, value=None, placeholder="Enter number")
-num_ebd_bags = st.number_input("Number of EBD bags (not including bulk):", min_value=0, step=1, value=None, placeholder="Enter number")
 bulk_cash_amount = st.number_input("Enter total bulk cash amount:", min_value=0, step=1, value=None, placeholder="Enter amount")
 
 bulk_bag_values = []
@@ -41,6 +40,7 @@ if bulk_cash_amount and bulk_cash_amount > 0:
         else:
             bulk_bag_values = [bulk_cash_amount]
 
+num_ebd_bags = st.number_input("Number of EBD bags (not including bulk):", min_value=0, step=1, value=None, placeholder="Enter number")
 num_idm_bags = st.number_input("Number of IDM bags:", min_value=0, step=1, value=None, placeholder="Enter number")
 
 idm_values = []
@@ -56,18 +56,18 @@ if has_atm == "Yes":
 
 if st.button("Calculate Minimum Trips"):
     MAX_TRIP_VALUE = 350000
-    ebd_value = MAX_TRIP_VALUE / int(max_ebd_per_trip) if max_ebd_per_trip else 0
+    ebd_value = MAX_TRIP_VALUE / max_ebd_per_trip if max_ebd_per_trip else 0
+    trips = []
 
     cash_items = (
         [('Bulk', val) for val in bulk_bag_values]
-        + [('EBD', ebd_value)] * (int(num_ebd_bags) if num_ebd_bags else 0)
+        + [('EBD', ebd_value)] * (num_ebd_bags or 0)
         + [('IDM', val) for val in idm_values]
         + ([('ATM', atm_value)] if atm_value else [])
     )
 
     cash_items.sort(key=lambda x: x[1], reverse=True)
 
-    trips = []
     while cash_items:
         trip, trip_value, ebd_count = [], 0, 0
         for item in cash_items[:]:
@@ -85,22 +85,21 @@ if st.button("Calculate Minimum Trips"):
         trips.append((trip, trip_value))
 
     st.markdown("---")
-    st.subheader("Trip Breakdown")
+    st.header("Trip Breakdown")
     for i, (trip, trip_total) in enumerate(trips, 1):
-        summary = []
         bulk_total = sum(val for t, val in trip if t == 'Bulk')
         bulk_count = sum(1 for t in trip if t[0] == 'Bulk')
         ebd_count = sum(1 for t in trip if t[0] == 'EBD')
         idm_items = [f"IDM (${val:,})" for t, val in trip if t == 'IDM']
         atm_items = [f"ATM (${val:,})" for t, val in trip if t == 'ATM']
 
+        summary = []
         if bulk_count:
             summary.append(f"{bulk_count} × Bulk (${bulk_total:,})")
         if ebd_count:
             summary.append(f"{ebd_count} × EBDs")
         summary += idm_items + atm_items
 
-        st.markdown(f"<p style='font-family: Arial; font-size: 16px;'><b>Trip {i}:</b> {', '.join(summary)} → <b>Total Trip:</b> ${math.ceil(trip_total):,}</p>", unsafe_allow_html=True)
+        st.write(f"**Trip {i}:** {', '.join(summary)} → **Total Trip:** ${math.ceil(trip_total):,}")
 
-st.markdown("<hr><div style='text-align: center; font-family:Arial, sans-serif;'>Created by A. Cohen</div>", unsafe_allow_html=True)
-
+st.markdown("<hr><div style='text-align: center; color:grey;'>Created by A. Cohen</div>", unsafe_allow_html=True)
