@@ -1,0 +1,10 @@
+C:\Users\avner\OneDrive\Desktop\New folder
+
+streamlit run "NAB Pyton Code V2.0.py"
+
+Arma
+https://cdn.prod.website-files.com/64ee6c6f0da86184dbf899fb/6501cc83a0c1f956c0248568_armaguard-logo.jpeg
+
+
+Nab
+https://images.squarespace-cdn.com/content/v1/60ca8bdb7318ad61b88ffa35/1623886822583-DHSV57IE47MEZ5OI8OO5/nab.png

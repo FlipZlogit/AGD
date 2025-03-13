@@ -1,0 +1,94 @@
+def get_minimum_trips():
+    # Inputs
+    max_ebd_per_trip = int(input("Enter max EBD bags per trip: "))
+    bulk_cash_amount = int(input("Enter total bulk cash amount: "))
+bulk_cash_amount = int(input("Enter total bulk cash amount: "))
+bulk_bag_values = []  # <-- ADD THIS LINE
+num_bulk_bags = 1 if bulk_cash_amount > 0 else 0
+
+if bulk_cash_amount > 0:
+    num_bulk_bags = int(input("Enter number of bulk cash bags (must be at least 1): "))
+
+            print("Number of bulk cash bags must be at least 1.")
+            num_bulk_bags = int(input("Enter number of bulk cash bags: "))
+        
+        if num_bulk_bags > 1:
+            known_denomination = int(input("Do you know the value of each bulk bag? (1 for yes, 0 for no): "))
+            if known_denomination == 1:
+                bulk_bag_values = []
+                for i in range(num_bulk_bags):
+                    value = int(input(f"Enter value of Bulk Bag {i+1}: "))
+                    bulk_bag_values.append(value)
+                while sum(bulk_bag_values) != bulk_cash_amount:
+                    print("Error: Bulk bag values do not match total bulk cash amount. Please enter again.")
+                    bulk_bag_values = []
+                    for i in range(num_bulk_bags):
+                        value = int(input(f"Enter value of Bulk Bag {i+1}: "))
+                        bulk_bag_values.append(value)
+            else:
+                bulk_bag_values = [bulk_cash_amount // num_bulk_bags] * num_bulk_bags
+                remainder = bulk_cash_amount % num_bulk_bags
+                for i in range(remainder):
+                    bulk_bag_values[i] += 1
+    num_ebd_bags = int(input("Enter number of EBD bags (not including bulk): "))
+    num_idm_bags = int(input("Enter number of IDM bags: "))
+    idm_values = []
+    for i in range(num_idm_bags):
+        value = int(input(f"Enter value of IDM {i+1}: "))
+        idm_values.append(value)
+    has_atm = int(input("Is there ATM value to consider? (1 for yes, 0 for no): "))
+    atm_value = int(input("Enter ATM value: ")) if has_atm == 1 else 0
+    
+    # Constants
+    MAX_TRIP_VALUE = 350000
+    import math
+    ebd_value = MAX_TRIP_VALUE / max_ebd_per_trip if max_ebd_per_trip > 0 else 0
+    trips = []
+    
+    # Collect all items in a list
+    cash_items = [('Bulk', val) for val in bulk_bag_values] + [('EBD', ebd_value)] * num_ebd_bags + [('IDM', val) for val in idm_values] + ([('ATM', atm_value)] if atm_value > 0 else [])
+    
+    # Sort items by value descending (EBD last since it has a calculated value)
+    cash_items.sort(key=lambda x: x[1], reverse=True)
+    
+    # Trip Packing Algorithm
+    while cash_items:
+        trip = []
+        trip_value = 0
+        ebd_count = 0
+        
+        for item in cash_items[:]:  # Iterate over a copy of the list
+            bag_type, value = item
+            
+            if bag_type == 'EBD' and ebd_count < max_ebd_per_trip:
+                if trip_value + value <= MAX_TRIP_VALUE:
+                    trip.append(item)
+                    trip_value += value
+                    ebd_count += 1
+                    cash_items.remove(item)
+            elif bag_type != 'EBD' and trip_value + value <= MAX_TRIP_VALUE:
+                trip.append(item)
+                trip_value += value
+                cash_items.remove(item)
+        
+        trips.append((trip, trip_value))
+    
+    # Output the trips
+    print("\nTrip Breakdown:")
+    for i, (trip, trip_total) in enumerate(trips, start=1):
+        bulk_count = sum(1 for t in trip if t[0] == 'Bulk')
+        ebd_count = sum(1 for t in trip if t[0] == 'EBD')
+        idm_items = [f"IDM (${t[1]:,})" for t in trip if t[0] == 'IDM']
+        atm_items = [f"ATM (${t[1]:,})" for t in trip if t[0] == 'ATM']
+        
+        trip_summary = []
+        if bulk_count:
+            trip_summary.append(f"{bulk_count} X Bulk (${sum(t[1] for t in trip if t[0] == 'Bulk'):,})")
+        if ebd_count:
+            trip_summary.append(f"{ebd_count} X EBDs")
+        trip_summary.extend(idm_items + atm_items)
+        
+        print(f"Trip {i}: {', '.join(trip_summary)} → Total Trip Value: ${math.ceil(trip_total):,}")
+    
+if __name__ == "__main__":
+    get_minimum_trips()
