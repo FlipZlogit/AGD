@@ -52,7 +52,7 @@ if has_coin == "Yes":
 
 if st.button("Calculate Minimum Trips"):
     MAX_TRIP_VALUE = 350000
-    ebd_value = math.floor(MAX_TRIP_VALUE / max_ebd_per_trip) if max_ebd_per_trip else 0  # Ensure whole number
+    ebd_value = math.ceil(MAX_TRIP_VALUE / max_ebd_per_trip) if max_ebd_per_trip else 0  # Ensure proper rounding up
 
     cash_items = (
         [('Bulk', val) for val in bulk_bag_values]
@@ -88,18 +88,18 @@ if st.button("Calculate Minimum Trips"):
         trip_summary = []
         ebd_count = sum(1 for t in trip if t[0] == 'EBD')
         bulk_count = sum(1 for t in trip if t[0] == 'Bulk')
-        idm_count = sum(1 for t in trip if t[0] == 'IDM')
-        atm_count = sum(1 for t in trip if t[0] == 'ATM')
+        idm_list = [f"IDM (${t[1]:,})" for t in trip if t[0] == 'IDM']
+        atm_list = ["ATM ($" + f"{t[1]:,})" for t in trip if t[0] == 'ATM']
         coin_count = sum(1 for t in trip if t[0] == 'Coin')
 
         if ebd_count:
             trip_summary.append(f"{ebd_count} × EBDs")
         if bulk_count:
             trip_summary.append(f"{bulk_count} × Bulk")
-        if idm_count:
-            trip_summary.append(f"{idm_count} × IDMs")
-        if atm_count:
-            trip_summary.append(f"{atm_count} × ATM")
+        if idm_list:
+            trip_summary.extend(idm_list)
+        if atm_list:
+            trip_summary.extend(atm_list)
         if coin_count:
             trip_summary.append(f"{coin_count} × Coin Bags")
 
