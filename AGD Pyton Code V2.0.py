@@ -52,7 +52,7 @@ if has_coin == "Yes":
 
 if st.button("Calculate Minimum Trips"):
     MAX_TRIP_VALUE = 350000
-    ebd_value = MAX_TRIP_VALUE / max_ebd_per_trip if max_ebd_per_trip else 0
+    ebd_value = math.floor(MAX_TRIP_VALUE / max_ebd_per_trip) if max_ebd_per_trip else 0  # Ensure whole number
 
     cash_items = (
         [('Bulk', val) for val in bulk_bag_values]
@@ -93,7 +93,7 @@ if st.button("Calculate Minimum Trips"):
     st.subheader("Trip Breakdown")
     for i, (trip, trip_total, bag_count) in enumerate(trips, 1):
         summary = [f"{bag_count} Bags"]
-        trip_details = [f"{t[0]} (${t[1]:,})" for t in trip]
-        st.markdown(f"Trip {i}: {', '.join(trip_details)} → <strong>Total Trip:</strong> ${math.ceil(trip_total):,} | {bag_count} Bags", unsafe_allow_html=True)
+        trip_details = [f"{t[0]} (${'{:,}'.format(int(t[1]))})" for t in trip]
+        st.markdown(f"**Trip {i}:** {', '.join(trip_details)} → **Total Trip:** ${math.ceil(trip_total):,} | {bag_count} Bags", unsafe_allow_html=True)
 
-    st.markdown(f"<hr><strong>Total:</strong> ${total_value:,} | {total_bags} Bags | {total_idms} IDMs | {total_atms} ATM | {total_coins} Coin Bags", unsafe_allow_html=True)
+    st.markdown(f"<hr><strong>Total:</strong> ${math.ceil(total_value):,} | {total_bags} Bags | {total_idms} IDMs | {total_atms} ATM | {total_coins} Coin Bags", unsafe_allow_html=True)
