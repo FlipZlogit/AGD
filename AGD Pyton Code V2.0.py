@@ -6,8 +6,8 @@ st.set_page_config(page_title="Minimum Trips Calculator", layout="centered")
 # Display logos and title
 st.markdown("""
 <div style='text-align:center;'>
-    <img src='https://cdn.prod.website-files.com/64ee6c6f0da86184dbf899fb/6501cc83a0c1f956c0248568_armaguard-logo.jpeg' width='120'/>
-    <img src='https://images.squarespace-cdn.com/content/v1/60ca8bdb7318ad61b88ffa35/1623886822583-DHSV57IE47MEZ5OI8OO5/nab.png'/>
+    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/Aemaguard.jpg' width='120'/>
+    <img src='https://raw.githubusercontent.com/FlipZlogit/AGD/main/NAB.png' width='120'/>
     <h1 style='font-family:Arial, sans-serif; color:black;'>Minimum Trips Calculator</h1>
 </div><hr>
 """, unsafe_allow_html=True)
@@ -57,7 +57,6 @@ if has_atm == "Yes":
 if st.button("Calculate Minimum Trips"):
     MAX_TRIP_VALUE = 350000
     ebd_value = MAX_TRIP_VALUE / max_ebd_per_trip if max_ebd_per_trip else 0
-    trips = []
 
     cash_items = (
         [('Bulk', val) for val in bulk_bag_values]
@@ -68,6 +67,7 @@ if st.button("Calculate Minimum Trips"):
 
     cash_items.sort(key=lambda x: x[1], reverse=True)
 
+    trips = []
     while cash_items:
         trip, trip_value, ebd_count = [], 0, 0
         for item in cash_items[:]:
@@ -87,13 +87,13 @@ if st.button("Calculate Minimum Trips"):
     st.markdown("---")
     st.header("Trip Breakdown")
     for i, (trip, trip_total) in enumerate(trips, 1):
+        summary = []
         bulk_total = sum(val for t, val in trip if t == 'Bulk')
         bulk_count = sum(1 for t in trip if t[0] == 'Bulk')
         ebd_count = sum(1 for t in trip if t[0] == 'EBD')
         idm_items = [f"IDM (${val:,})" for t, val in trip if t == 'IDM']
         atm_items = [f"ATM (${val:,})" for t, val in trip if t == 'ATM']
 
-        summary = []
         if bulk_count:
             summary.append(f"{bulk_count} × Bulk (${bulk_total:,})")
         if ebd_count:
@@ -102,4 +102,4 @@ if st.button("Calculate Minimum Trips"):
 
         st.write(f"**Trip {i}:** {', '.join(summary)} → **Total Trip:** ${math.ceil(trip_total):,}")
 
-st.markdown("<hr><div style='text-align: center; color:grey;'>Created by A. Cohen</div>", unsafe_allow_html=True)
+st.markdown("<hr><div style='text-align: center;'>Created by A. Cohen</div>", unsafe_allow_html=True)
